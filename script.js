@@ -1,128 +1,82 @@
-:root {
-    --primary-color: #4a90e2;
-    --secondary-color: #f5a623;
-    --background-color: #f9f9f9;
-    --text-color: #333;
-    --light-gray: #e0e0e0;
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('upload-form');
+    const results = document.getElementById('results');
+    const moleculeCount = document.getElementById('molecule-count');
+    const moleculeList = document.getElementById('molecule-list');
+    const markedText = document.getElementById('marked-text');
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const excelFile = document.getElementById('excel-file').files[0];
+        const pdfFile = document.getElementById('pdf-file').files[0];
 
-body {
-    font-family: 'Roboto', sans-serif;
-    line-height: 1.6;
-    color: var(--text-color);
-    background-color: var(--background-color);
-    padding: 20px;
-}
+        if (!excelFile || !pdfFile) {
+            alert('Please select both an Excel file and a PDF file.');
+            return;
+        }
 
-.container {
-    max-width: 1000px;
-    margin: 0 auto;
-    background-color: #fff;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+        try {
+            const molecules = await extractMoleculesFromExcel(excelFile);
+            const { foundMolecules, extractedText } = await searchMoleculesInPDF(pdfFile, molecules);
+            displayResults(foundMolecules, extractedText);
+        } catch (error) {
+            console.error('Error processing files:', error);
+            alert('An error occurred while processing the files. Please try again.');
+        }
+    });
 
-h1, h2, h3 {
-    margin-bottom: 20px;
-    color: var(--primary-color);
-}
-
-form, .login-form {
-    margin-bottom: 30px;
-}
-
-.file-input {
-    margin-bottom: 20px;
-}
-
-label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: 500;
-}
-
-input[type="file"], input[type="text"], input[type="password"] {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    border: 2px solid var(--light-gray);
-    border-radius: 4px;
-    font-size: 16px;
-    margin-bottom: 10px;
-}
-
-button {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #3a7bd5;
-}
-
-#molecule-list {
-    list-style-type: none;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-#molecule-list li {
-    background-color: var(--light-gray);
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-size: 14px;
-}
-
-#marked-text {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    background-color: #fff;
-    padding: 20px;
-    border: 1px solid var(--light-gray);
-    border-radius: 4px;
-    margin-top: 20px;
-    font-family: 'Courier New', Courier, monospace;
-    line-height: 1.4;
-    max-height: 500px;
-    overflow-y: auto;
-}
-
-.marked-molecule {
-    background-color: yellow;
-    padding: 2px 0;
-}
-
-.hidden {
-    display: none;
-}
-
-.login-form {
-    max-width: 300px;
-    margin: 0 auto;
-}
-
-@media (max-width: 600px) {
-    .container {
-        padding: 20px;
+    async function extractMoleculesFromExcel(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const molecules = XLSX.utils.sheet_to_json(firstSheet, {header: 1})
+                    .map(row => row[0])
+                    .filter(molecule => molecule && typeof molecule === 'string');
+                resolve(molecules);
+            };
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+        });
     }
 
-    input[type="file"], button {
-        width: 100%;
+    async function searchMoleculesInPDF(file, molecules) {
+        const pdf = await pdfjsLib.getDocument(URL.createObjectURL(file)).promise;
+        const foundMolecules = new Set();
+        let extractedText = '';
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items.map(item => item.str).join(' ');
+            extractedText += pageText + '\n\n';
+
+            molecules.forEach(molecule => {
+                const regex = new RegExp(`\\b${molecule}\\b`, 'gi');
+                if (regex.test(pageText)) {
+                    foundMolecules.add(molecule);
+                }
+            });
+        }
+
+        return { foundMolecules: Array.from(foundMolecules), extractedText };
     }
-}
+
+    function displayResults(foundMolecules, extractedText) {
+        moleculeCount.textContent = `Found ${foundMolecules.length} unique molecules`;
+        moleculeList.innerHTML = foundMolecules.map(molecule => `<li>${molecule}</li>`).join('');
+        
+        foundMolecules.forEach(molecule => {
+            const regex = new RegExp(`\\b${molecule}\\b`, 'gi');
+            extractedText = extractedText.replace(regex, match => `<span class="marked-molecule">${match}</span>`);
+        });
+        
+        markedText.innerHTML = extractedText;
+        results.classList.remove('hidden');
+    }
+});
+
+// Initialize PDF.js
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
