@@ -1,77 +1,128 @@
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
+:root {
+    --primary-color: #4a90e2;
+    --secondary-color: #f5a623;
+    --background-color: #f9f9f9;
+    --text-color: #333;
+    --light-gray: #e0e0e0;
+}
+
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    padding: 20px;
 }
 
 .container {
-    width: 80%;
-    margin: auto;
-    overflow: hidden;
-    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
     background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    margin-top: 50px;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
-    color: #333;
-    text-align: center;
+h1, h2, h3 {
+    margin-bottom: 20px;
+    color: var(--primary-color);
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+form, .login-form {
+    margin-bottom: 30px;
 }
 
 .file-input {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 20px;
 }
 
 label {
-    margin-bottom: 5px;
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
 }
 
-input[type="file"] {
+input[type="file"], input[type="text"], input[type="password"] {
+    display: block;
+    width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 2px solid var(--light-gray);
     border-radius: 4px;
+    font-size: 16px;
+    margin-bottom: 10px;
 }
 
 button {
-    padding: 10px 15px;
-    background-color: #333;
-    color: #fff;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 20px;
     border: none;
+    border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #555;
+    background-color: #3a7bd5;
 }
 
-#result {
-    margin-top: 30px;
+#molecule-list {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
-#result.hidden {
+#molecule-list li {
+    background-color: var(--light-gray);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+#marked-text {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid var(--light-gray);
+    border-radius: 4px;
+    margin-top: 20px;
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 1.4;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.marked-molecule {
+    background-color: yellow;
+    padding: 2px 0;
+}
+
+.hidden {
     display: none;
 }
 
-ul {
-    list-style-type: none;
-    padding: 0;
+.login-form {
+    max-width: 300px;
+    margin: 0 auto;
 }
 
-li {
-    background-color: #f4f4f4;
-    margin-bottom: 5px;
-    padding: 10px;
-    border-radius: 4px;
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+    }
+
+    input[type="file"], button {
+        width: 100%;
+    }
 }
