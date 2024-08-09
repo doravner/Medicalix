@@ -10,24 +10,37 @@
 <body>
     <div class="container">
         <h1>Molecules Finder in PDF Documents</h1>
-        <form id="upload-form">
-            <div class="file-input">
-                <label for="excel-file">Upload an Excel file with the list of molecules in the A column. Make sure that the molecule names are clean from their seats.</label>
-                <input type="file" id="excel-file" accept=".xlsx, .xls" required>
+        <div id="login-content">
+            <form id="login-form">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+        <div id="app-content" class="hidden">
+            <form id="upload-form">
+                <div class="file-input">
+                    <label for="excel-file">Upload an Excel file with the list of molecules in the A column. Make sure that the molecule names are clean from their seats.</label>
+                    <input type="file" id="excel-file" accept=".xlsx, .xls" required>
+                </div>
+                <div class="file-input">
+                    <label for="pdf-file">Upload the PDF document in which you'd like to perform the search</label>
+                    <input type="file" id="pdf-file" accept=".pdf" required>
+                </div>
+                <button type="submit">Process Files</button>
+            </form>
+            <div id="results" class="hidden">
+                <h2>Results</h2>
+                <p id="molecule-count"></p>
+                <h3>Identified Molecules:</h3>
+                <ul id="molecule-list"></ul>
+                <h3>Extracted Text with Marked Molecules:</h3>
+                <div id="marked-text"></div>
             </div>
-            <div class="file-input">
-                <label for="pdf-file">Upload the PDF document in which you'd like to perform the search</label>
-                <input type="file" id="pdf-file" accept=".pdf" required>
-            </div>
-            <button type="submit">Process Files</button>
-        </form>
-        <div id="results" class="hidden">
-            <h2>Results</h2>
-            <p id="molecule-count"></p>
-            <h3>Identified Molecules:</h3>
-            <ul id="molecule-list"></ul>
-            <h3>Extracted Text with Marked Molecules:</h3>
-            <div id="marked-text"></div>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
