@@ -34,7 +34,7 @@ h1, h2, h3 {
     color: var(--primary-color);
 }
 
-form, .login-form {
+form {
     margin-bottom: 30px;
 }
 
@@ -48,14 +48,13 @@ label {
     font-weight: 500;
 }
 
-input[type="file"], input[type="text"], input[type="password"] {
+input[type="file"] {
     display: block;
     width: 100%;
     padding: 10px;
     border: 2px solid var(--light-gray);
     border-radius: 4px;
     font-size: 16px;
-    margin-bottom: 10px;
 }
 
 button {
@@ -110,11 +109,6 @@ button:hover {
 
 .hidden {
     display: none;
-}
-
-.login-form {
-    max-width: 300px;
-    margin: 0 auto;
 }
 
 @media (max-width: 600px) {
